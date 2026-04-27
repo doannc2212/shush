@@ -1,20 +1,19 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
 import { build } from "bun";
 import sveltePlugin from "bun-plugin-svelte";
 
 const isProduction = process.argv.includes("--production");
 
-console.log(`[shush] Building (${isProduction ? "production" : "development"})...`);
+console.log(
+  `[shush] Building (${isProduction ? "production" : "development"})...`,
+);
 
 // Generate placeholder icons if they don't exist yet
-if (!existsSync("public/icons/icon16.png")) {
+if (!(await Bun.file("public/icons/icon16.png").exists())) {
   console.log("[shush] Generating placeholder icons...");
   await import("./generate-icons.ts");
 }
 
-await Bun.$`rm -rf dist`;
-mkdirSync("dist/icons", { recursive: true });
+await Bun.$`rm -rf dist && mkdir -p dist/icons`;
 
 // Build popup (Svelte app)
 const popupBuild = await build({
@@ -47,15 +46,14 @@ if (!swBuild.success) {
 }
 
 // Copy manifest
-copyFileSync("manifest.json", "dist/manifest.json");
+await Bun.write("dist/manifest.json", Bun.file("manifest.json"));
 
 // Copy icons
-if (existsSync("public/icons")) {
-  for (const file of readdirSync("public/icons")) {
-    const src = join("public/icons", file);
-    if (statSync(src).isFile()) {
-      copyFileSync(src, join("dist/icons", file));
-    }
+if (await Bun.file("public/icons").exists()) {
+  for await (const file of new Bun.Glob("public/icons/*").scan({
+    onlyFiles: true,
+  })) {
+    await Bun.write(`dist/icons/${file.split("/").pop()}`, Bun.file(file));
   }
 }
 
