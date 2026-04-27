@@ -327,6 +327,9 @@ function getDomain(url: string | undefined): string {
   border-top: 1px solid var(--c-gray-100);
   background-color: #fff;
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }
 
 .btn-mute {
