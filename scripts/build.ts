@@ -49,12 +49,10 @@ if (!swBuild.success) {
 await Bun.write("dist/manifest.json", Bun.file("manifest.json"));
 
 // Copy icons
-if (await Bun.file("public/icons").exists()) {
-  for await (const file of new Bun.Glob("public/icons/*").scan({
-    onlyFiles: true,
-  })) {
-    await Bun.write(`dist/icons/${file.split("/").pop()}`, Bun.file(file));
-  }
+for await (const file of new Bun.Glob("public/icons/*").scan({
+  onlyFiles: true,
+})) {
+  await Bun.write(`dist/icons/${file.split("/").pop()}`, Bun.file(file));
 }
 
 console.log("[shush] Build complete → dist/");
