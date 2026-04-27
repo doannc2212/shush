@@ -22,6 +22,7 @@ function formatRemaining(ms: number): string {
   return `${s}s`;
 }
 
+// biome-ignore lint/correctness/noUnusedVariables: used in Svelte template
 function countdownClass(expiresAt: number | null): string {
   if (expiresAt === null) return "time-infinite";
   const ms = expiresAt - now;
