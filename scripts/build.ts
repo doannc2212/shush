@@ -1,19 +1,11 @@
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  statSync,
-} from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { build } from "bun";
 import sveltePlugin from "bun-plugin-svelte";
 
 const isProduction = process.argv.includes("--production");
 
-console.log(
-  `[shush] Building (${isProduction ? "production" : "development"})...`,
-);
+console.log(`[shush] Building (${isProduction ? "production" : "development"})...`);
 
 // Generate placeholder icons if they don't exist yet
 if (!existsSync("public/icons/icon16.png")) {

@@ -1,8 +1,4 @@
-import type {
-  MessageFromBackground,
-  MessageToBackground,
-  MutedTab,
-} from "../types/index.ts";
+import type { MessageFromBackground, MessageToBackground, MutedTab } from "../types/index.ts";
 
 const STORAGE_KEY = "mutedTabs";
 const ALARM_PREFIX = "shush:tab:";
@@ -20,10 +16,7 @@ async function saveMutedTabs(tabs: Record<string, MutedTab>): Promise<void> {
 
 // --- Core actions ---
 
-async function muteTab(
-  tabId: number,
-  durationMinutes: number | null,
-): Promise<void> {
+async function muteTab(tabId: number, durationMinutes: number | null): Promise<void> {
   let tab: chrome.tabs.Tab;
   try {
     tab = await chrome.tabs.get(tabId);
@@ -34,8 +27,7 @@ async function muteTab(
   await chrome.tabs.update(tabId, { muted: true });
 
   const now = Date.now();
-  const expiresAt =
-    durationMinutes !== null ? now + durationMinutes * 60 * 1000 : null;
+  const expiresAt = durationMinutes !== null ? now + durationMinutes * 60 * 1000 : null;
   const alarmName = expiresAt !== null ? `${ALARM_PREFIX}${tabId}` : null;
 
   // Clear any previous alarm for this tab (e.g. re-muting with a new duration)
@@ -117,35 +109,33 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   });
 });
 
-chrome.runtime.onMessage.addListener(
-  (message: MessageToBackground, _sender, sendResponse) => {
-    const handle = async (): Promise<unknown> => {
-      switch (message.type) {
-        case "MUTE_TABS":
-          for (const id of message.tabIds) {
-            await muteTab(id, message.durationMinutes);
-          }
-          return { ok: true };
-        case "UNMUTE_TAB":
-          await unmuteTab(message.tabId);
-          return { ok: true };
-        case "GET_STATE": {
-          const mutedTabs = await getMutedTabs();
-          return { mutedTabs: Object.values(mutedTabs) };
+chrome.runtime.onMessage.addListener((message: MessageToBackground, _sender, sendResponse) => {
+  const handle = async (): Promise<unknown> => {
+    switch (message.type) {
+      case "MUTE_TABS":
+        for (const id of message.tabIds) {
+          await muteTab(id, message.durationMinutes);
         }
+        return { ok: true };
+      case "UNMUTE_TAB":
+        await unmuteTab(message.tabId);
+        return { ok: true };
+      case "GET_STATE": {
+        const mutedTabs = await getMutedTabs();
+        return { mutedTabs: Object.values(mutedTabs) };
       }
-    };
+    }
+  };
 
-    handle()
-      .then(sendResponse)
-      .catch((err) => {
-        console.error("[shush] Message handler error:", err);
-        sendResponse({ ok: false });
-      });
+  handle()
+    .then(sendResponse)
+    .catch((err) => {
+      console.error("[shush] Message handler error:", err);
+      sendResponse({ ok: false });
+    });
 
-    return true; // Keep channel open for async response
-  },
-);
+  return true; // Keep channel open for async response
+});
 
 // Re-apply mute state after browser restart (tabs may have lost their muted flag)
 chrome.runtime.onStartup.addListener(async () => {
