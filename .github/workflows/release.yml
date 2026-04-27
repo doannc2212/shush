@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # required to create GitHub Releases
+
+jobs:
+  release:
+    name: Build & publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Type-check
+        run: bun run type-check
+
+      - name: Production build
+        run: bun run build
+
+      - name: Package extension
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          zip -r "shush-${VERSION}.zip" dist/
+          echo "ZIP_NAME=shush-${VERSION}.zip" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_NAME }}
+          generate_release_notes: true
+
+      # ─── Optional: publish to Chrome Web Store ──────────────────────────────
+      # Uncomment and configure secrets to enable automatic CWS publishing.
+      #
+      # - name: Publish to Chrome Web Store
+      #   uses: mnao305/chrome-extension-upload@v5.0.0
+      #   with:
+      #     file-path: ${{ env.ZIP_NAME }}
+      #     extension-id: ${{ secrets.CWS_EXTENSION_ID }}
+      #     client-id: ${{ secrets.CWS_CLIENT_ID }}
+      #     client-secret: ${{ secrets.CWS_CLIENT_SECRET }}
+      #     refresh-token: ${{ secrets.CWS_REFRESH_TOKEN }}
