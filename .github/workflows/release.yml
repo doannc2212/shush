@@ -44,14 +44,11 @@ jobs:
           files: ${{ env.ZIP_NAME }}
           generate_release_notes: true
 
-      # ─── Optional: publish to Chrome Web Store ──────────────────────────────
-      # Uncomment and configure secrets to enable automatic CWS publishing.
-      #
-      # - name: Publish to Chrome Web Store
-      #   uses: mnao305/chrome-extension-upload@v5.0.0
-      #   with:
-      #     file-path: ${{ env.ZIP_NAME }}
-      #     extension-id: ${{ secrets.CWS_EXTENSION_ID }}
-      #     client-id: ${{ secrets.CWS_CLIENT_ID }}
-      #     client-secret: ${{ secrets.CWS_CLIENT_SECRET }}
-      #     refresh-token: ${{ secrets.CWS_REFRESH_TOKEN }}
+      - name: Publish to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v6.0.0
+        with:
+          file-path: ${{ env.ZIP_NAME }}
+          extension-id: ${{ secrets.CWS_EXTENSION_ID }}
+          client-id: ${{ secrets.CWS_CLIENT_ID }}
+          client-secret: ${{ secrets.CWS_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CWS_REFRESH_TOKEN }}
