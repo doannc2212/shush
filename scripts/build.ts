@@ -3,9 +3,7 @@ import sveltePlugin from "bun-plugin-svelte";
 
 const isProduction = process.argv.includes("--production");
 
-console.log(
-  `[shush] Building (${isProduction ? "production" : "development"})...`,
-);
+console.log(`[shush] Building (${isProduction ? "production" : "development"})...`);
 
 // Generate placeholder icons if they don't exist yet
 if (!(await Bun.file("public/icons/icon16.png").exists())) {

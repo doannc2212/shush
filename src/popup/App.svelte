@@ -26,9 +26,7 @@ function switchView(newView: "mute" | "active") {
   if (h && popupEl) popupEl.style.height = `${h}px`;
   view = newView;
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      if (popupEl) popupEl.style.height = "";
-    });
+    if (popupEl) popupEl.style.height = "";
   });
 }
 
