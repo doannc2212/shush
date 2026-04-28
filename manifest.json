@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Shush",
   "short_name": "Shush",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mute specific tabs for a duration to stay focused and undisturbed.",
   "permissions": ["tabs", "alarms", "notifications", "storage"],
   "action": {
